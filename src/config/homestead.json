@@ -2,7 +2,7 @@
     "network": "homestead",
     "chainId": 1,
     "precision": 6,
-    "infuraKey": "237c3102f39b4940abbe12dc49165cd6",
+    "infuraKey": "1f64f2d19ca6483a96b86825d0eff4db",
     "alchemyKey": "cQGZUiTLRCFsQS7kbRxPJK4eH4fTTu88",
     "subgraphUrl": "https://api.thegraph.com/subgraphs/name/balancer-labs/balancer",
     "subgraphBackupUrl": "https://ipfs.fleek.co/ipns/balancer-bucket.storage.fleek.co/balancer-exchange/pools",
@@ -18,7 +18,7 @@
         "injected": {},
         "walletconnect": {
             "rpc": {
-                "1": "https://mainnet.infura.io/v3/237c3102f39b4940abbe12dc49165cd6"
+                "1": "https://mainnet.infura.io/v3/1f64f2d19ca6483a96b86825d0eff4db"
             }
         },
         "portis": {
