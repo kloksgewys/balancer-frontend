@@ -235,7 +235,7 @@ export default defineComponent({
             }
             if (assetModalKey === 'output') {
                 assetOutAddressInput.value = assetAddress;
-            }            
+            }
         }
 
         async function unlock(): Promise<void> {

@@ -207,6 +207,7 @@ export default defineComponent({
     top: 0;
     right: 5px;
 }
+
 .close {
     width: 8px;
     height: 8px;
