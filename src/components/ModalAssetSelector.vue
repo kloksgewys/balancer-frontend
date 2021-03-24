@@ -1,6 +1,6 @@
 <template>
     <ModalBase
-        :title="'Select Asset'"
+        :title="$t('modals.asset-selector.title')"
         :open="open"
         @close="close"
     >
@@ -10,34 +10,49 @@
                     v-model="query"
                     v-autofocus
                     class="query-input"
-                    placeholder="Search by symbol, name, or address"
+                    :placeholder="$t('modals.asset-selector.search.placeholder')"
                 >
             </div>
+            <div class="asset-wrapper">
+                <div
+                    v-for="asset in visibleAssets"
+                    :key="asset.address"
+                    class="asset"
+                    :class="{ incompatible: isIncompatible(asset.address) }"
+                    @click="select(asset.address)"
+                >
+                    <div class="asset-meta">
+                        <AssetIcon
+                            class="asset-icon"
+                            :address="asset.address"
+                        />
+                        <div>
+                            <div class="asset-symbol-container">
+                                <div class="asset-symbol">
+                                    {{ asset.symbol }}
+                                </div>
+                                <div
+                                    v-if="isIncompatible(asset.address)"
+                                    class="asset-incompatible"
+                                >
+                                    {{ $t('modals.asset-selector.incompatible-asset') }}
+                                </div>
+                            </div>
+                            <div class="asset-name">
+                                {{ asset.name }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="asset-amount">
+                        {{ asset.amount }}
+                    </div>
+                </div>
+            </div>
             <div
-                v-for="asset in visibleAssets"
-                :key="asset.address"
-                class="asset"
-                :class="{ incompatible: isIncompatible(asset.address) }"
-                @click="select(asset.address)"
+                v-if="noSearchResults"
+                class="no-search-results"
             >
-                <div class="asset-meta">
-                    <AssetIcon
-                        class="asset-icon"
-                        :address="asset.address"
-                    />
-                    <div class="asset-symbol">
-                        {{ asset.symbol }}
-                    </div>
-                    <div
-                        v-if="isIncompatible(asset.address)"
-                        class="asset-incompatible"
-                    >
-                        Incompatible
-                    </div>
-                </div>
-                <div class="asset-amount">
-                    {{ asset.amount }}
-                </div>
+                {{ $t('modals.asset-selector.search.no-results') }}
             </div>
         </template>
     </ModalBase>
@@ -141,6 +156,8 @@ export default defineComponent({
                 });
         });
 
+        const noSearchResults = computed(() => query.value !== '' &&  visibleAssets.value.length === 0);
+
         function select(assetAddress: string): void {
             if (isIncompatible(assetAddress)) {
                 return;
@@ -164,14 +181,26 @@ export default defineComponent({
             select,
             close,
             isIncompatible,
+            noSearchResults,
         };
     },
 });
 </script>
 
 <style scoped>
+/* stylelint-disable */
+::v-deep(.modal) {
+    min-height: 90%;
+}
+::v-deep(.modal .body) {
+    display: flex;
+    flex-direction: column;
+}
+/* stylelint-enable */
+
 .query-input-wrapper {
     padding: 16px;
+    border-bottom: 1px solid var(--border);
 }
 
 .query-input {
@@ -203,7 +232,14 @@ export default defineComponent({
     background: transparent;
 }
 
-.asset-meta {
+.asset-wrapper {
+    height: 100%;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.asset-meta,
+.asset-symbol-container {
     display: flex;
     align-items: center;
 }
@@ -213,16 +249,21 @@ export default defineComponent({
     height: 32px;
     border-radius: 50%;
     background-color: white;
+    margin-right: 12px;
 }
 
 .asset-symbol {
     max-width: 140px;
-    padding-left: 12px;
     font-size: var(--font-size-large);
     font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.asset-name {
+    font-size: var(--font-size-tiny);
+    color: var(--text-secondary);
 }
 
 .asset-incompatible {
@@ -236,4 +277,10 @@ export default defineComponent({
     color: var(--text-secondary);
     font-size: var(--font-size-large);
 }
+
+.no-search-results {
+    text-align: center;
+    padding: 20px;
+}
+
 </style>
