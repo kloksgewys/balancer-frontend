@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import { createWebHashHistory, createRouter } from 'vue-router';
 import store from './store';
+import i18n from './i18n';
 import '@/utils/fathom';
 
 import App from './App.vue';
@@ -24,6 +25,7 @@ app.directive('autofocus', {
     },
 });
 
+app.use(i18n);
 app.use(router);
 app.use(store);
 

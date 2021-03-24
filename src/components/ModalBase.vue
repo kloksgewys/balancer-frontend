@@ -7,10 +7,13 @@
             class="modal-wrapper"
         >
             <div
+                v-if="showBackdrop"
                 class="backdrop"
                 @click="$emit('close')"
             />
-            <div class="modal">
+            <div
+                class="modal"      
+            >
                 <div class="header">
                     <div>
                         {{ title }}
@@ -30,9 +33,11 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, toRefs, watch } from 'vue';
 
 import Icon from '@/components/Icon.vue';
+
+const ESC_KEY = 27;
 
 export default defineComponent({
     components: {
@@ -47,8 +52,40 @@ export default defineComponent({
             type: Boolean,
             required: true,
         },
+        autoHideOnEscape: {
+            type: Boolean,
+            default: true,
+        },
+        showBackdrop: {
+            type: Boolean,
+            default: true,
+        },
     },
     emits: ['close'],
+    setup(props, { emit }) {
+        const { open } = toRefs(props);
+
+        // eslint-disable-next-line
+        function onEscapeKeyUp(e) {
+            if (e.which === ESC_KEY) {
+                emit('close');
+            }
+        }
+        
+        watch(open, () => {
+            if (open.value) {
+                document.body.classList.add('block-scroll');
+                if (props.autoHideOnEscape) {
+                    window.addEventListener('keyup', onEscapeKeyUp);
+                }
+            } else {
+                document.body.classList.remove('block-scroll');
+                if (props.autoHideOnEscape) {
+                    window.removeEventListener('keyup', onEscapeKeyUp);
+                }            
+            }
+        });
+    },
 });
 </script>
 
@@ -124,6 +161,7 @@ export default defineComponent({
 
 .close-icon {
     width: 16px;
+    cursor: pointer;
 }
 
 .body {

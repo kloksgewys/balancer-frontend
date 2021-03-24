@@ -19,6 +19,7 @@ import { ETH_KEY, scale } from '@/utils/helpers';
 import { SwapValidation } from '@/utils/validation';
 
 import Button from '@/components/Button.vue';
+import useModal from '@/composable/useModal';
 
 enum Type {
     Connect,
@@ -55,7 +56,8 @@ export default defineComponent({
     emits: ['swap', 'unlock'],
     setup(props, { emit }) {
         const store = useStore<RootState>();
-
+        const connectorModal = useModal('connector');
+        
         const { addressIn, addressOut, amountIn, transactionPending, validation } = toRefs(props);
 
         const account = computed(() => {
@@ -173,7 +175,7 @@ export default defineComponent({
 
         function handleClick(): void {
             if (type.value === Type.Connect) {
-                store.dispatch('ui/openConnectorModal');
+                connectorModal.open();
             } else if (type.value === Type.Unlock) {
                 emit('unlock');
             } else {

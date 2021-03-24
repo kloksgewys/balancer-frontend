@@ -25,20 +25,33 @@
                 <div
                     class="link active"
                 >
-                    Trade
+                    {{ $t('header.trade') }}
                 </div>
-                <a
+                <ExternalLink
                     class="link"
                     href="https://pools.balancer.exchange"
-                    target="_blank"
                 >
-                    Invest
-                </a>
+                    {{ $t('header.invest') }}
+                </ExternalLink>
             </div>
         </div>
         <div class="header-right">
+            <div
+                class="notification-icon-wrapper"
+            >
+                <Icon
+                    v-if="isConnected"
+                    class="header-icon notification-icon"
+                    title="notification"
+                    @click="openTransactionsModal"
+                />
+                <span
+                    v-if="hasNewNotification"
+                    class="notification-icon-dot"
+                />
+            </div>
             <Icon
-                class="mode-icon"
+                class="header-icon"
                 :title="modeLogo"
                 @click="toggleMode"
             />
@@ -49,18 +62,31 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
+import { useStore } from 'vuex';
+
+import { RootState } from '@/store';
 
 import Storage from '@/utils/storage';
 
 import Account from '@/components/Account.vue';
 import Icon from '@/components/Icon.vue';
+import ExternalLink from '@/components/ExternalLink.vue';
+
+import useModal from '@/composable/useModal';
 
 export default defineComponent({
     components: {
         Account,
         Icon,
+        ExternalLink,
     },
     setup() {
+        const store = useStore<RootState>();
+        const transactionsModal = useModal('transactions', { 
+            orderByField: 'timestamp',
+            direction: 'desc',
+        });
+        
         // eslint-disable-next-line no-undef
         const isDev = ref(process.env.APP_ENV === 'dev');
         // eslint-disable-next-line no-undef
@@ -72,6 +98,8 @@ export default defineComponent({
 
         const mode = ref(Storage.isDarkmode());
         const modeLogo = computed(() => getLogo(mode.value));
+        const isConnected = computed(() => store.getters['account/isConnected']);
+        const hasNewNotification = computed(() => store.state.ui.hasNewNotification);
 
         function toggleMode(): void {
             mode.value = Storage.toggleMode();
@@ -86,6 +114,10 @@ export default defineComponent({
             return isDarkmode ? 'moon' : 'sun';
         }
 
+        function openTransactionsModal(): void {
+            transactionsModal.open();
+        }
+
         return {
             isDev,
             commitLabel,
@@ -93,6 +125,10 @@ export default defineComponent({
 
             modeLogo,
             toggleMode,
+
+            openTransactionsModal,
+            isConnected,
+            hasNewNotification,
         };
     },
 });
@@ -163,10 +199,30 @@ a {
     color: var(--text-primary);
 }
 
-.mode-icon {
+.header-icon {
     height: 24px;
     width: 24px;
     cursor: pointer;
+}
+
+.notification-icon-wrapper {
+    position: relative;
+}
+
+.notification-icon {
+    margin-right: 16px;
+    cursor: pointer;
+}
+
+.notification-icon-dot {
+    width: 8px;
+    height: 8px;
+    background: rgb(253, 97, 97);
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    left: 14px;
+    pointer-events: none;
 }
 
 .account {

@@ -1,0 +1,25 @@
+{
+    "header": {
+        "trade": "Trade",
+        "invest": "Invest",
+        "transactions": "Transactions"
+    },
+    "modals": {
+        "transactions": {
+            "title": "Transaction history",
+            "time": "Time",
+            "type": "Type",
+            "tx": "TX",
+            "no-transactions": "No transactions in history"
+        },
+        "asset-selector": {
+            "title": "Select Asset",
+            "search": {
+                "placeholder": "Search by symbol, name, or address",
+                "no-results": "No results found."
+            },
+            "incompatible-asset": "Incompatible"
+
+        }
+    }
+}

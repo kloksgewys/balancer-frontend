@@ -26,7 +26,7 @@
                                 class="account-wallet-icon"
                             >
                                 <Icon
-                                    :title="'clipboard'"
+                                    :title="clipboardIcon"
                                     @click="copyAddress"
                                 />
                             </div>
@@ -40,7 +40,10 @@
                                 />
                             </a>
                         </div>
-                        <span class="connector-name">{{ connector.name }}</span>
+                        <span class="connector-name"><span
+                            class="chain-dot"
+                            :class="chainName"
+                        />{{ connector.name }}</span>
                     </div>
                 </div>
                 <ButtonText
@@ -94,7 +97,7 @@
 
 <script lang="ts">
 import BigNumber from 'bignumber.js';
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 import { RootState } from '@/store';
@@ -121,13 +124,21 @@ export default defineComponent({
             type: Boolean,
             required: true,
         },
+        close: {
+            type: Function,
+            required: true,
+        },
     },
-    setup() {
+    setup(props) {
         const store = useStore<RootState>();
+        
+        const clipboardIcon = ref('clipboard');
 
         const connector = computed(() => store.state.account.connector);
 
         const address = computed(() => store.state.account.address);
+
+        const chainName = computed(() => store.getters['account/chainName']);
 
         const balances = computed(() => {
             const metadata = store.getters['assets/metadata'];
@@ -155,15 +166,16 @@ export default defineComponent({
         function copyAddress(): void {
             const { address } = store.state.account;
             navigator.clipboard.writeText(address);
+            
+            clipboardIcon.value = 'success';
+            setTimeout(() => {
+                clipboardIcon.value = 'clipboard';
+            }, 3 * 1000);
         }
 
         function disconnect(): void {
-            close();
+            props.close();
             store.dispatch('account/disconnect');
-        }
-
-        function close(): void {
-            store.dispatch('ui/closeAccountModal');
         }
 
         return {
@@ -176,7 +188,10 @@ export default defineComponent({
 
             copyAddress,
             disconnect,
-            close,
+
+            clipboardIcon,
+
+            chainName,
         };
     },
 });
@@ -240,6 +255,28 @@ export default defineComponent({
 .connector-name {
     color: var(--text-secondary);
     font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.chain-dot {
+    width: 8px;
+    height: 8px;
+    background: #29b6af;
+    margin-right: 5px;
+    border-radius: 50%;
+}
+
+.chain-dot.kovan {
+    background: #7057ff;
+}
+
+.chain-dot.ropsten {
+    background: #ff4a8d;
+}
+
+.chain-dot.rinkeby {
+    background: #f6c343;
 }
 
 .wallet {

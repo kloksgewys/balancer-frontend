@@ -5,6 +5,7 @@
             success: type === 'success',
             warning: type === 'warning',
             error: type === 'error',
+            pending: type === 'pending'
         }"
     >
         <div class="meta">
@@ -31,17 +32,31 @@
             class="progress"
             :style="{ width: `${(progress * 100).toFixed(0)}%` }"
         />
+        <div
+            v-if="id"
+            class="close-wrapper"
+            @click="closeNotification(id)"
+        >
+            <Icon
+                :title="'close'"
+                class="close"
+            />
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted } from 'vue';
 import { TransitionPresets, useTransition } from '@vueuse/core';
+import { useStore } from 'vuex';
 
+import { RootState } from '@/store';
 import { NOTIFICATION_DURATION } from '@/store/modules/ui';
 
 import Icon from '@/components/Icon.vue';
 import NotificationButton from '@/components/NotificationButton.vue';
+
+
 
 export default defineComponent({
     components: {
@@ -61,6 +76,10 @@ export default defineComponent({
             type: String,
             default: '',
         },
+        id: {
+            type: String,
+            default: '',
+        },
     },
     setup(props) {
         const totalProgress = ref(0);
@@ -70,6 +89,9 @@ export default defineComponent({
             transition: TransitionPresets.linear,
         });
 
+        const store = useStore<RootState>();
+
+
         onMounted(() => {
             totalProgress.value = 1;
         });
@@ -77,7 +99,10 @@ export default defineComponent({
         const icon = computed(() => {
             if (props.type === 'success') {
                 return 'success';
-            } else {
+            } else if (props.type === 'pending'){
+                return 'pending';
+            }
+            else {
                 return 'error';
             }
         });
@@ -85,15 +110,22 @@ export default defineComponent({
         const title = computed(() => {
             if (props.type === 'success') {
                 return 'Success';
-            } else {
+            } else if (props.type === 'pending') {
+                return 'Pending';
+            }else {
                 return 'Error';
             }
         });
+
+        function closeNotification(id: string): void {
+            store.dispatch('ui/removeNotification', { id });
+        }
 
         return {
             icon,
             title,
             progress,
+            closeNotification,
         };
     },
 });
@@ -130,6 +162,10 @@ export default defineComponent({
     background: var(--error);
 }
 
+.pending {
+    background: var(--info);
+}
+
 .error {
     background: var(--error);
 }
@@ -164,5 +200,17 @@ export default defineComponent({
     background: white;
     opacity: 0.8;
     transition: width 1s linear;
+}
+
+.close-wrapper {
+    position: absolute;
+    top: 0;
+    right: 5px;
+}
+
+.close {
+    width: 8px;
+    height: 8px;
+    cursor: pointer;
 }
 </style>

@@ -200,7 +200,7 @@ const actions = {
             text,
             hash,
             status: TransactionStatus.PENDING,
-            timestamp: 0,
+            timestamp: Date.now(),
         };
         commit('setTransaction', transaction);
     },
@@ -231,6 +231,19 @@ const getters = {
         }
         return provider;
     },
+    transactionList: (state: AccountState): Transaction[] => Object.values(state.transactions),
+    hasTransactions: (state: AccountState): boolean => Object.keys(state.transactions).length > 0,
+    chainName: (state: AccountState): string => {
+        switch (state.chainId) {
+        case 1: return 'mainnet';
+        case 3: return 'ropsten';
+        case 4: return 'rinkeby';
+        case 42: return 'kovan';
+        }
+
+        return 'mainnet';
+    },
+    isConnected: (state: AccountState): boolean => state.address !== '',
 };
 
 function state(): AccountState {

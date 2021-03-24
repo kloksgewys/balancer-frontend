@@ -202,6 +202,7 @@ export default defineComponent({
         watch(assetInAddressInput, () => {
             Storage.saveInputAsset(config.chainId, assetInAddressInput.value);
             onAmountChange(activeInput.value);
+            updateRoute();
         });
 
         watch(assetOutAddressInput, async () => {
@@ -213,7 +214,15 @@ export default defineComponent({
                 await sor.setCostOutputToken(assetOutAddress);
             }
             onAmountChange(activeInput.value);
+            updateRoute();
         });
+
+        function updateRoute(): void {
+            router.replace({ params: { 
+                assetIn: assetInAddressInput.value,
+                assetOut: assetOutAddressInput.value,
+            }});
+        }
 
         function handleAmountChange(amount: string): void {
             onAmountChange(amount);
@@ -431,6 +440,15 @@ export default defineComponent({
                 return;
             }
 
+            const link = getEtherscanLink(transaction.hash);
+
+            
+            const notifyId = await store.dispatch('ui/addNotification', {
+                text,
+                type: 'pending',
+                link,
+            });
+            
             store.dispatch('account/saveTransaction', {
                 transaction,
                 text,
@@ -446,11 +464,15 @@ export default defineComponent({
             const type = transactionReceipt.status === 1
                 ? 'success'
                 : 'error';
-            const link = getEtherscanLink(transactionReceipt.transactionHash);
-            store.dispatch('ui/notify', {
-                text,
-                type,
-                link,
+            
+            store.dispatch('ui/updateNotification', {                
+                id: notifyId,
+                notification: {
+                    text,
+                    type,
+                    link,
+                },
+                removeTopNotification: true,
             });
         }
 

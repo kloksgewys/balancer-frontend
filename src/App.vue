@@ -3,9 +3,17 @@
         <Header />
         <router-view class="view" />
 
-        <ModalSettings :open="isSettingsModalOpen" />
-        <ModalAccount :open="isAccountModalOpen" />
-        <ModalConnectorSelector :open="isConnectorModalOpen" />
+        <template
+            v-for="modal in modals"
+            :key="modal.type"
+        >
+            <component
+                :is="modal.comp"
+                :open="modal.open"
+                :close="() => closeModal(modal.type)"
+                :params="modal.params"
+            />
+        </template>
         <NotificationList
             :items="notifications"
         />
@@ -22,23 +30,54 @@ import Storage from '@/utils/storage';
 import Header from '@/components/Header.vue';
 import ModalAccount from '@/components/ModalAccount.vue';
 import ModalConnectorSelector from '@/components/ModalConnectorSelector.vue';
+import ModalTransactions from '@/components/ModalTransactions.vue';
 import ModalSettings from '@/components/ModalSettings.vue';
 import NotificationList from '@/components/NotificationList.vue';
+import { ModalType } from './store/modules/ui';
+
+import uniq from 'lodash/uniq';
+
+const modalsMap = {
+    transactions: ModalTransactions,
+    settings: ModalSettings,
+    account: ModalAccount,
+    connector: ModalConnectorSelector,
+};
+
+const modalMapTypes = Object.keys(modalsMap);
 
 export default defineComponent({
     components: {
         Header,
         ModalAccount,
         ModalConnectorSelector,
+        ModalTransactions,
         ModalSettings,
         NotificationList,
     },
     setup() {
         const store = useStore<RootState>();
 
-        const isSettingsModalOpen = computed(() => store.state.ui.modal.settings.isOpen);
-        const isAccountModalOpen = computed(() => store.state.ui.modal.account.isOpen);
-        const isConnectorModalOpen = computed(() => store.state.ui.modal.connector.isOpen);
+        const modals = computed(() => {
+            // makes sure to render all our modals in the correct order they were opened.
+            const modalTypes = uniq<ModalType>([
+                ...store.getters['ui/openedModalTypes'], 
+                ...modalMapTypes,
+            ]);
+
+            return modalTypes.map(modalType => {
+                const modal = store.state.ui.modals.find(openedModal => openedModal.type === modalType);
+
+                return {
+                    type: modalType,
+                    comp: modalsMap[modalType],
+                    open: !!modal,
+                    params: modal != null ? modal.params : undefined,
+                };
+            });
+        });
+
+        
 
         const notifications = computed(() => store.state.ui.notifications);
 
@@ -57,11 +96,15 @@ export default defineComponent({
             store.dispatch('price/init');
         });
 
+        function closeModal(modalType: ModalType): void {
+            store.dispatch('ui/closeModal', modalType);
+        }
+
         return {
-            isSettingsModalOpen,
-            isAccountModalOpen,
-            isConnectorModalOpen,
             notifications,
+
+            modals,
+            closeModal,
         };
     },
 });
@@ -109,6 +152,10 @@ body {
     margin: 0;
     background: var(--background-primary);
     color: var(--text-primary);
+}
+
+.block-scroll {
+    overflow: hidden;
 }
 
 input {
