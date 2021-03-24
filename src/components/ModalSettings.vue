@@ -31,8 +31,15 @@
                 </div>
             </div>
             <div class="section">
-                <div class="section-header">
+                <div
+                    class="section-header"
+                    @click="transactionsModal.open"
+                >
                     Transaction history
+                    <Icon
+                        :title="'externalLink'"
+                        class="tx-history-header"
+                    />
                 </div>
                 <div class="section-body">
                     <ButtonText
@@ -66,6 +73,9 @@ import Storage from '@/utils/storage';
 
 import ButtonText from '@/components/ButtonText.vue';
 import ModalBase from '@/components/ModalBase.vue';
+import Icon from '@/components/Icon.vue';
+
+import useModal from '@/composable/useModal';
 
 const slippageOptions = [0.001, 0.002, 0.005, 0.01];
 
@@ -73,17 +83,27 @@ export default defineComponent({
     components: {
         ButtonText,
         ModalBase,
+        Icon,
     },
     props: {
         open: {
             type: Boolean,
             required: true,
         },
+        close: {
+            type: Function,
+            required: true,
+        },
     },
     setup() {
         const store = useStore<RootState>();
         const slippage = ref(0);
-        const slippageInput = ref('');
+        const slippageInput = ref('');  
+        
+        const transactionsModal = useModal('transactions', { 
+            orderByField: 'timestamp',
+            direction: 'asc',
+        });
 
         const isCustomSlippage = computed(() => {
             return !slippageOptions.includes(slippage.value);
@@ -109,10 +129,6 @@ export default defineComponent({
             setSlippage(slippageNumber);
         });
 
-        function close(): void {
-            store.dispatch('ui/closeSettingsModal');
-        }
-
         function formatSlippage(slippageNumber: number): string {
             return `${(slippageNumber * 100).toFixed(1)}%`;
         }
@@ -132,8 +148,6 @@ export default defineComponent({
         }
 
         return {
-            close,
-
             slippageOptions,
             setSlippage,
             slippage,
@@ -143,6 +157,8 @@ export default defineComponent({
 
             clearTransactions,
             clearAssets,
+
+            transactionsModal,
         };
     },
 });
@@ -156,6 +172,8 @@ export default defineComponent({
 .section-header {
     font-weight: bold;
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
 }
 
 .section-body {
@@ -193,4 +211,12 @@ input.slippage-option {
 .slippage-option.selected {
     border-color: var(--text-primary);
 }
+
+.tx-history-header {
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
 </style>

@@ -42,8 +42,12 @@ export default defineComponent({
             type: Boolean,
             required: true,
         },
+        close: {
+            type: Function,
+            required: true,
+        },
     },
-    setup() {
+    setup(props) {
         const store = useStore<RootState>();
 
         const connectors = computed(() => {
@@ -64,18 +68,13 @@ export default defineComponent({
         });
 
         function select(connectorId: string): void {
-            close();
+            props.close();
             store.dispatch('account/connect', connectorId);
-        }
-
-        function close(): void {
-            store.dispatch('ui/closeConnectorModal');
         }
 
         return {
             connectors,
             select,
-            close,
         };
     },
 });

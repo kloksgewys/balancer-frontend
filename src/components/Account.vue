@@ -2,7 +2,7 @@
     <div
         v-if="address"
         class="account-wrapper"
-        @click="openAccountModal"
+        @click="accountModal.open"
     >
         <div class="account-meta">
             <Jazzicon
@@ -22,7 +22,7 @@
         :loading="loading"
         :disabled="loading"
         class="connect-button"
-        @click="openConnectorModal"
+        @click="connectorModal.open"
     />
 </template>
 
@@ -35,6 +35,7 @@ import { formatAddress } from '@/utils/helpers';
 
 import Button from '@/components/Button.vue';
 import Jazzicon from '@/components/Jazzicon.vue';
+import useModal from '@/composable/useModal';
 
 export default defineComponent({
     components: {
@@ -43,6 +44,8 @@ export default defineComponent({
     },
     setup() {
         const store = useStore<RootState>();
+        const accountModal = useModal('account');
+        const connectorModal = useModal('connector');
 
         const address = computed(() => {
             const { connector, address } = store.state.account;
@@ -57,20 +60,12 @@ export default defineComponent({
             return !!connector && !!connector.id && !address;
         });
 
-        function openAccountModal(): void {
-            store.dispatch('ui/openAccountModal');
-        }
-
-        function openConnectorModal(): void {
-            store.dispatch('ui/openConnectorModal');
-        }
-
         return {
             address,
             loading,
             formatAddress,
-            openAccountModal,
-            openConnectorModal,
+            accountModal,
+            connectorModal,
         };
     },
 });

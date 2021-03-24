@@ -1,7 +1,7 @@
 <template>
     <div
         class="button"
-        @click="openSettingsModal"
+        @click="settingsModal.open"
     >
         <Icon
             class="icon"
@@ -12,25 +12,19 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useStore } from 'vuex';
-
-import { RootState } from '@/store';
 
 import Icon from '@/components/Icon.vue';
+import useModal from '@/composable/useModal';
 
 export default defineComponent({
     components: {
         Icon,
     },
     setup() {
-        const store = useStore<RootState>();
-
-        function openSettingsModal(): void {
-            store.dispatch('ui/openSettingsModal');
-        }
+        const settingsModal = useModal('settings');
 
         return {
-            openSettingsModal,
+            settingsModal,
         };
     },
 });
