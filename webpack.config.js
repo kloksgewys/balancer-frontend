@@ -3,7 +3,7 @@ const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
-const GitRevisionPlugin = require('git-revision-webpack-plugin')
+const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const webpack = require('webpack');
 
 const isDev = process.argv.some(v => v.includes('webpack-dev-server'));
@@ -24,6 +24,7 @@ module.exports =
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src'),
+            'vue-i18n': 'vue-i18n/dist/vue-i18n.cjs.js',
         },
         extensions: ['.ts', '.js', '.json'],
     },

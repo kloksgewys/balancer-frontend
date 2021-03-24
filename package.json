@@ -33,12 +33,16 @@
     "dotenv-webpack": "^2.0.0",
     "ethcall": "^3.0.0",
     "fortmatic": "^2.0.6",
+    "lodash": "4.17.21",
     "vue": "^3.0.2",
+    "vue-i18n": "^9.0.0",
+    "vue-meta": "^2.4.0",
     "vue-router": "^4.0.0-rc.6",
     "vuex": "^4.0.0-rc.2",
     "walletlink": "^2.0.2"
   },
   "devDependencies": {
+    "@types/lodash": "4.14.168",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
     "@vue/compiler-sfc": "^3.0.2",
