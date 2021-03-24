@@ -3,10 +3,11 @@
         <transition-group name="slide">
             <Notification
                 v-for="item in items"
+                :id="item.id"
                 :key="item.link"
                 :type="item.type"
                 :text="item.text"
-                :link="item.link"
+                :link="item.link"                
             />
         </transition-group>
     </div>
